@@ -7,6 +7,12 @@
 (helm-mode 1)
 #+END_SRC
 
+* Require SuperCollider package
+
+#+BEGIN_SRC emacs-lisp
+
+(load-file "~/.emacs.d/personal/emacsconfig/SuperCollider-load.el")
+#+END_SRC
 
 * Require and load the following packages
 
