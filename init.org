@@ -1,0 +1,35 @@
+* General Settings
+
+#+BEGIN_SRC emacs-lisp
+(setq ring-bell-function 'ignore)
+(setq guru-warn-only nil)
+(toggle-frame-fullscreen)
+(helm-mode 1)
+#+END_SRC
+
+
+* Require and load the following packages
+
+ #+BEGIN_SRC emacs-lisp
+(prelude-require-packages '(
+                            solarized-theme
+                            org-bullets
+                            htmlize
+                            ox-reveal
+                            ))
+#+END_SRC
+
+
+* Org mode hooks
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook 'org-bullets-mode)
+  (setq org-src-fontify-natively t)
+#+END_SRC
+
+
+* Change hash key to normal
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-3") '(lambda () (interactive) (insert "#")))
+#+END_SRC
