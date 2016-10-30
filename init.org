@@ -2,7 +2,7 @@
 
 #+BEGIN_SRC emacs-lisp
 (setq ring-bell-function 'ignore)
-(setq guru-warn-only nil)
+(guru-global-mode +1)
 (toggle-frame-fullscreen)
 (helm-mode 1)
 #+END_SRC
@@ -10,7 +10,6 @@
 * Require SuperCollider package
 
 #+BEGIN_SRC emacs-lisp
-
 (load-file "~/.emacs.d/personal/emacsconfig/SuperCollider-load.el")
 #+END_SRC
 
