@@ -1,1 +1,2 @@
+* My Emacs configuration
 My Emacs configuration in Org-Babel literal programming style.
