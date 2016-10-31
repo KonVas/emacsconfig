@@ -1,3 +1,12 @@
+* General Settings
+
+#+BEGIN_SRC emacs-lisp
+(setq ring-bell-function 'ignore)
+(guru-global-mode +1)
+(toggle-frame-fullscreen)
+(helm-mode 1)
+#+END_SRC
+
 * Require and load the following packages
 
  #+BEGIN_SRC emacs-lisp
@@ -6,15 +15,6 @@
                             htmlize
                             ox-reveal
                             ))
-#+END_SRC
-
-* General Settings
-
-#+BEGIN_SRC emacs-lisp
-(setq ring-bell-function 'ignore)
-(guru-global-mode +1)
-(toggle-frame-fullscreen)
-(helm-mode 1)
 #+END_SRC
 
 * SuperCollider configuration
@@ -34,9 +34,6 @@
  'exec-path
  "/Applications/SuperCollider/SuperCollider.app/Contents/MacOS/")
 
-(global-set-key (kbd "C-c M-s") 'sclang-start)
-(global-set-key (kbd "C-c W") 'sclang-switch-to-workspace)
-
 (setq sclang-show-workspace-on-startup 1)
 #+END_SRC
 
@@ -52,7 +49,6 @@
     "org-mode blocks for SuperCollider SCLang."
     :group 'org)
 
-  ;;;###autoload
   (defun org-babel-execute:sclang (body params)
     "Org-mode Babel sclang hook for evaluate `BODY' with `PARAMS'."
     (unless (or (equal (buffer-name) sclang-post-buffer)
@@ -72,7 +68,6 @@
     (add-to-list 'org-src-lang-modes '("sclang" . sclang)))
 
   (provide 'ob-sclang)
-
  #+END_SRC
 
 * Org mode setting and  hooks
@@ -85,5 +80,18 @@
 * Personal keybindings
 
 #+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c M-s") 'sclang-start)
+(global-set-key (kbd "C-c W") 'sclang-switch-to-workspace)
 (global-set-key (kbd "M-3") '(lambda () (interactive) (insert "#")))
+(global-set-key (kbd "C-<return>") 'sclang-eval-line)
+(global-set-key (kbd "C-c M-q") 'sclang-kill)
+#+END_SRC
+
+**** Init ends here
+* To load this file put the script below in ~/.emacs.d/personal/ folder.
+#+BEGIN_SRC emacs-lisp
+(require 'org)
+(org-babel-load-file
+ (expand-file-name "init.org"
+                   "~/.emacs.d/personal/emacsconfig/"))
 #+END_SRC
