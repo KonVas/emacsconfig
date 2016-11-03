@@ -1,7 +1,10 @@
 * My Emacs configuration
 My Emacs configuration in Org-Babel literal programming style.
 For details see the init.org file in this repo. It's not possible to use it out of the box, you will need to add this in your ~/.emacs.d/personal folder:
+
+#+BEGIN_SRC emacs-lisp
 (require 'org)
 (org-babel-load-file
  (expand-file-name "init.org"
 "~/.emacs.d/personal/emacsconfig/"))
+#+END_SRC
