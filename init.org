@@ -88,10 +88,3 @@
 #+END_SRC
 
 **** Init ends here
-* To load this file put the script below in ~/.emacs.d/personal/ folder.
-#+BEGIN_SRC emacs-lisp
-(require 'org)
-(org-babel-load-file
- (expand-file-name "init.org"
-                   "~/.emacs.d/personal/emacsconfig/"))
-#+END_SRC
