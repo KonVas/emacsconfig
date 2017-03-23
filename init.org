@@ -5,17 +5,68 @@
 (guru-global-mode +1)
 (toggle-frame-fullscreen)
 (helm-mode 1)
+
+ (toggle-cursor-type-when-idle 1)
+  (change-cursor-mode 1)
+  (setq-default truncate-lines nil)
+    ;; (setq initial-scratch-message (current-time-string))
+
+    (guru-global-mode 1)
+    (toggle-frame-fullscreen)
+    (helm-mode 1)
+    (display-time-mode 1)
+
+    ;; remove default buffers scratch and messages
+    ;; Makes *scratch* empty.
+    (setq initial-scratch-message "")
+
+    ;; Removes *scratch* from buffer after the mode has been set.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; (defun remove-scratch-buffer ()                                 ;;
+    ;;   (if (get-buffer "*scratch*")                                  ;;
+    ;;       (kill-buffer "*scratch*")))                               ;;
+    ;; (add-hook 'after-change-major-mode-hook 'remove-scratch-buffer) ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    ;; Removes *messages* from the buffer.
+    ;; (setq-default message-log-max nil)
+    ;; (kill-buffer "*Messages*")
+
+
+    ;; Removes *Completions* from buffer after you've opened a file.
+    (add-hook 'minibuffer-exit-hook
+          '(lambda ()
+             (let ((buffer "*Completions*"))
+               (and (get-buffer buffer)
+                    (kill-buffer buffer)))))
+
+    ;; Don't show *Buffer list* when opening multiple files at the same time.
+    (setq inhibit-startup-buffer-menu t)
+
+    ;; Show only one active window when opening multiple files at the same time.
+    (add-hook 'window-setup-hook 'delete-other-windows)
+    ;; No more typing the whole yes or no. Just y or n will do.
+    (fset 'yes-or-no-p 'y-or-n-p)
+
+    ;;Load Yasnippet
+    (prelude-require-package 'yasnippet)
+    (yas-global-mode 1)
 #+END_SRC
 
 * Require and load the following packages
-
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 (prelude-require-packages '(solarized-theme
                             org-bullets
                             htmlize
                             ox-reveal
+                            cursor-chg
+                            wttrin
+                            ox-pandoc
+                            org-ref
+                            org-mime
+                            org-mobile-sync
                             ))
-#+END_SRC
+  #+END_SRC
 
 * SuperCollider configuration
 
@@ -70,21 +121,208 @@
   (provide 'ob-sclang)
  #+END_SRC
 
-* Org mode setting and  hooks
+* Mu4e configuration
+* Org mode and LaTex setting and hooks
+  #+BEGIN_SRC emacs-lisp
+   (require 'org)
+   (require 'org-mime)
+   (require 'ox-latex)
+   (require 'org-ref)
+   (require 'pandoc-mode)
+   (setq org-directory "~/Org")
+   (setq org-default-notes-file (concat org-directory "/notes.org"))
+   (define-key global-map "\C-cc" 'org-capture)
+   (add-hook 'org-mode-hook 'org-bullets-mode)
+   (add-hook 'org-mode-hook 'org-indent-mode)
+   (add-hook 'org-mode-hook 'auto-fill-mode)
 
+   ;; Use minted
+   (add-to-list 'org-latex-packages-alist '("" "minted"))
+   (setq org-latex-listings 'minted)
+
+   ;; Add the shell-escape flag
+   (setq org-latex-pdf-process '(
+   "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+   ;; "bibtex %b"
+   "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+   "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+   ))
+
+   (setq org-latex-pdf-process
+   '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
+
+   ;; Sample minted options.
+   (setq org-latex-minted-options '(
+   ("frame" "lines")
+   ("fontsize" "\\scriptsize")
+   ("xleftmargin" "\\parindent")
+   ("linenos" "")
+   ))
+
+   ;; Citation to docx
+   (setq helm-bibtex-format-citation-functions
+      '((org-mode . (lambda (x) (insert (concat
+                                         "\\cite{"
+                                         (mapconcat 'identity x ",")
+                                         "}")) ""))))
+
+                                         ;;(add-to-list 'load-path (expand-file-name "ox-pandoc" starter-kit-dir))
+
+                                         (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+
+                                         (require 'ox-pandoc)
+
+                                         ;; Dropbox configuration
+                                         (setq org-mobile-directory "~/Dropbox/MobileOrg")
+
+                                         ;;Custom Org Capture template
+                                         (setq org-capture-templates
+                                         '(("t" "todo" entry (file org-default-notes-file)
+	                                 "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
+	                                 ("m" "Meeting" entry (file org-default-notes-file)
+	                                 "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+	                                 ("d" "Diary" entry (file+datetree "~/org/diary.org")
+	                                 "* %?\n%U\n" :clock-in t :clock-resume t)
+	                                 ("i" "Idea" entry (file org-default-notes-file)
+	                                 "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
+	                                 ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
+	                                 "** NEXT %? \nDEADLINE: %t") ))
+  #+END_SRC
+
+* mu4e Mail configuration
+  #+BEGIN_SRC emacs-lisp
+    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+    (require 'mu4e)
+
+    ;; encrypting
+    (require 'epa-file)
+    (epa-file-enable)
+    (custom-set-variables '(epg-gpg-program  "/usr/local/bin/gpg2"))
+    (setf epa-pinentry-mode 'loopback)
+
+     (setq mu4e-mu-binary "/usr/local/bin/mu")
+     (setq mu4e-maildir "~/Maildir")
+    ;;(setq mu4e-drafts-folder "/[Gmail].Drafts")
+    ;;(setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+    ;;(setq mu4e-refile-folder  "/[Gmail].All Mail")
+
+    ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
+    (setq mu4e-sent-messages-behavior 'delete)
+
+    ;; allow for updating mail using 'U' in the main view:
+    (setq mu4e-get-mail-command "offlineimap")
+
+    ;; shortcuts
+    (setq mu4e-maildir-shortcuts
+        '( ("/INBOX"               . ?i)
+       ;; ("/[Gmail].Sent Mail"   . ?s)
+       ;; ("/[Gmail].Trash"       . ?t)
+       ;; ("/[Gmail].All Mail"    . ?a)
+    ))
+
+    ;; something about ourselves
+    (setq
+       user-mail-address "konstantinos.vasilakos@gmail.com"
+       user-full-name  "Konstantinos Vasilakos"
+       mu4e-compose-signature
+        (concat
+          "Best,\n"
+          "K.\n"))
+
+    ;; show images
+    (setq mu4e-show-images t)
+
+    ;; use imagemagick, if available
+    (when (fboundp 'imagemagick-register-types)
+      (imagemagick-register-types))
+
+    ;; convert html emails properly
+    ;; Possible options:
+    ;;   - html2text -utf8 -width 72
+    ;;   - textutil -stdin -format html -convert txt -stdout
+    ;;   - html2markdown | grep -v '&nbsp_place_holder;' (Requires html2text pypi)
+    ;;   - w3m -dump -cols 80 -T text/html
+    ;;   - view in browser (provided below)
+    (setq mu4e-html2text-command "textutil -stdin -format html -convert txt -stdout")
+
+    ;; spell check
+    (add-hook 'mu4e-compose-mode-hook
+            (defun my-do-compose-stuff ()
+               "My settings for message composition."
+               (set-fill-column 70)
+               (flyspell-mode)))
+
+    ;; add option to view html message in a browser
+    ;; `aV` in view to activate
+    (add-to-list 'mu4e-view-actions
+      '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+
+    ;; fetch mail every 10 mins
+    (setq mu4e-update-interval 600)
+
+    ;; configuration for sending mail
+    (setq message-send-mail-function 'smtpmail-send-it
+         smtpmail-stream-type 'starttls
+         smtpmail-default-smtp-server "smtp.gmail.com"
+         smtpmail-smtp-server "smtp.gmail.com"
+         smtpmail-smtp-service 587)
+
+    (setq message-kill-buffer-on-exit t)
+
+    ;; Org with mu4e
+    (require 'org-mu4e)
+    (setq org-mu4e-link-query-in-headers-mode nil)
+    (setq org-capture-templates
+          '(("t" "todo" entry (file+headline "~/todo.org" "Tasks")
+             "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp
+             (org-read-date nil t \"+0d\"))\n%a\n")
+             ))
+
+             ;;Turn email body to org and then to html to send.
+             (add-hook 'mu4e-compose-mode-hook 'org~mu4e-mime-switch-headers-or-body)
+             (setq org-mu4e-link-query-in-headers-mode nil)
+             (setq org-mu4e-convert-to-html t)
+
+             (require 'gnus-dired)
+     ;; make the `gnus-dired-mail-buffers' function also work on ;;
+     ;; message-mode derived modes, such as mu4e-compose-mode    ;;
+       (defun gnus-dired-mail-buffers ()                         ;;
+         "Return a list of active message buffers."              ;;
+         (let (buffers)                                          ;;
+           (save-current-buffer                                  ;;
+             (dolist (buffer (buffer-list t))                    ;;
+               (set-buffer buffer)                               ;;
+               (when (and (derived-mode-p 'message-mode)         ;;
+               (null message-sent-message-via))                  ;;
+               (push (buffer-name buffer) buffers))))            ;;
+                       (nreverse buffers)))                      ;;
+                                                                 ;;
+                 (setq gnus-dired-mail-mode 'mu4e-user-agent)    ;;
+           (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)  ;;
+                                                                 ;;
+      (setq mu4e-attachment-dir  "~/Downloads")                  ;;
+
+    ;; enable desktop notifications
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; (mu4e-alert-set-default-style 'notifier)                          ;;
+    ;; (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)     ;;
+    ;; (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display) ;;
+    ;; (setq mu4e-alert-email-notification-types '(count))               ;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  #+END_SRC
+
+* Org mode setting and  hooks
 #+BEGIN_SRC emacs-lisp
   (add-hook 'org-mode-hook 'org-bullets-mode)
   (setq org-src-fontify-natively t)
 #+END_SRC
-
 * Personal keybindings
-
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-c M-s") 'sclang-start)
 (global-set-key (kbd "C-c W") 'sclang-switch-to-workspace)
 (global-set-key (kbd "M-3") '(lambda () (interactive) (insert "#")))
 (global-set-key (kbd "C-<return>") 'sclang-eval-line)
 (global-set-key (kbd "C-c M-q") 'sclang-kill)
+(global-set-key (kbd "C-c m") 'mu4e)
 #+END_SRC
-
-**** Init ends here
