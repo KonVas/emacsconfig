@@ -121,7 +121,6 @@
   (provide 'ob-sclang)
  #+END_SRC
 
-* Mu4e configuration
 * Org mode and LaTex setting and hooks
   #+BEGIN_SRC emacs-lisp
    (require 'org)
@@ -303,15 +302,12 @@
       (setq mu4e-attachment-dir  "~/Downloads")                  ;;
 
     ;; enable desktop notifications
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; (mu4e-alert-set-default-style 'notifier)                          ;;
-    ;; (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)     ;;
-    ;; (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display) ;;
-    ;; (setq mu4e-alert-email-notification-types '(count))               ;;
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+    (mu4e-alert-set-default-style 'notifier)                          ;;
+    (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)     ;;
+    (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display) ;;
+    (setq mu4e-alert-email-notification-types '(count))               ;;
   #+END_SRC
-
 * Org mode setting and  hooks
 #+BEGIN_SRC emacs-lisp
   (add-hook 'org-mode-hook 'org-bullets-mode)
